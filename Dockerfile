@@ -13,6 +13,7 @@ USER debuser
 WORKDIR /home/debuser
 RUN git clone https://git.openwrt.org/openwrt/openwrt.git
 WORKDIR /home/debuser/openwrt
+RUN git checkout v22.03.2
 
 RUN ./scripts/feeds update -a
 RUN ./scripts/feeds install -a
