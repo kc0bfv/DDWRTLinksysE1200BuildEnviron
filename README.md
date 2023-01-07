@@ -47,9 +47,9 @@ In short, you'll need:
 You can pull those out by running:
 
 ```sh
-docker run --rm -it -d ddwrt_e1200_build_environ
-docker cp $ID_FROM_DOCKER:/home/debuser/openwrt/bin/targets/malta/le/$FILENAME...
-docker stop $ID_FROM_DOCKER
+sudo docker run --rm -it -d ddwrt_e1200_build_environ
+sudo docker cp $ID_FROM_DOCKER:/home/debuser/openwrt/bin/targets/malta/le/$FILENAME...
+sudo docker stop $ID_FROM_DOCKER
 ```
 
 You'll need to `gzip -d` the rootfs.
@@ -57,8 +57,15 @@ You'll need to `gzip -d` the rootfs.
 Then:
 
 ```sh
-qemu-system-mipsel -M malta \
+sudo qemu-system-mipsel -M malta \
 -hda openwrt-snapshot-malta-le-rootfs-ext4.img \
 -kernel openwrt-snapshot-malta-le-vmlinux.elf \
--nographic -append "root=/dev/sda console=ttyS0"
+-nographic -append "root=/dev/sda console=ttyS0" \
+-nic tap
 ```
+
+This will add a `tap` network device to your host, connected to `br-lan` in Qemu.  That defaults to `192.168.1.1/24`, so if you run the following in your host you'll be able to connect to the router there:
+
+`sudo ip addr add dev tap0 192.168.1.10/24`
+
+Note that if you have more than one tap device you may need to change the tap number.
