@@ -18,7 +18,7 @@ This generates a container tagged `ddwrt_e1200_build_environ:latest`.
 
 # Build Tool Use
 
-GCC and other tools are stored in `/home/debuser/openwrt/staging_dir/toolchain-mipsel_mips32_gcc-11.3.0_musl/bin/`, and named `mipsel-openwrt-linux-gcc` and such.  Use these like any other binary in a container.
+GCC and other tools are stored in `/home/debuser/openwrt/staging_dir/toolchain-mipsel_24kc_gcc-11.3.0_musl/bin/`, and named `mipsel-openwrt-linux-gcc` and such.  Use these like any other binary in a container.
 
 ## Easy Use
 
