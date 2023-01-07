@@ -1,10 +1,14 @@
 # Purpose
 
-This repo will setup a build environment in a container that will let you build for [dd-wrt](https://wiki.dd-wrt.com/wiki/index.php/Linksys_E1200v2) or [OpenWrt](https://openwrt.org/docs/guide-developer/toolchain/use-buildsystem) running on a Linksys E1200 version 2.  Actually it'll probably work for any router running a Broadcom BCM47xx or BCM53xx MIPS Little Endian chip on those or similar firmwares.
+This repo will setup a build environment in a container that will let you build binaries for [dd-wrt](https://wiki.dd-wrt.com/wiki/index.php/Linksys_E1200v2) or [OpenWrt](https://openwrt.org/docs/guide-developer/toolchain/use-buildsystem) running on a Linksys E1200 version 2.  Actually it'll probably work for any router running a Broadcom BCM47xx or BCM53xx MIPS Little Endian chip on those or similar firmwares.
+
+Additionally, it will compile an OpenWrt image that can run in Qemu that will allow you to test your binaries. 
 
 # Prerequisites
 
 Docker, sudo, make.
+
+Optionally: qemu-system-mips (for running the OpenWrt image).
 
 # Setup
 
@@ -12,13 +16,11 @@ Docker, sudo, make.
 
 This generates a container tagged `ddwrt_e1200_build_environ:latest`.
 
-# Use
+# Build Tool Use
 
-GCC and other tools are stored in `/home/debuser/openwrt/staging_dir/toolchain-mipsel_mips32_gcc-11.3.0_musl/bin/`, and named `mipsel-openwrt-linux-gcc` and such.
+GCC and other tools are stored in `/home/debuser/openwrt/staging_dir/toolchain-mipsel_mips32_gcc-11.3.0_musl/bin/`, and named `mipsel-openwrt-linux-gcc` and such.  Use these like any other binary in a container.
 
-Use these like any other binary in a container.
-
-# Easy Use
+## Easy Use
 
 Check out the `example_c_compilation` directory.  There's a makefile in there that you can copy and use elsewhere.  Drop it in a directory, change the `example.out` and `example.c` names, and go to town.
 
@@ -32,3 +34,31 @@ How that `CC` line works is - it uses `docker run` to:
 * runs the GCC binary inside that container
 
 Other GCC command line parameters get stuck on after the `${CC}` in the example.out section.
+
+# OpenWrt Qemu Use
+
+The [OpenWrt instructions are here](https://openwrt.org/docs/guide-user/virtualization/qemu#openwrt_in_qemu_mips), and the files you need are in the image at `/home/debuser/openwrt/bin/targets/malta/le/`.
+
+In short, you'll need:
+
+* `openwrt-snapshot-malta-le-vmlinux.elf`
+* `openwrt-snapshot-malta-le-rootfs-ext4.img.gz`
+
+You can pull those out by running:
+
+```sh
+docker run --rm -it -d ddwrt_e1200_build_environ
+docker cp $ID_FROM_DOCKER:/home/debuser/openwrt/bin/targets/malta/le/$FILENAME...
+docker stop $ID_FROM_DOCKER
+```
+
+You'll need to `gzip -d` the rootfs.
+
+Then:
+
+```sh
+qemu-system-mipsel -M malta \
+-hda openwrt-snapshot-malta-le-rootfs-ext4.img \
+-kernel openwrt-snapshot-malta-le-vmlinux.elf \
+-nographic -append "root=/dev/sda console=ttyS0"
+```

@@ -19,6 +19,6 @@ RUN ./scripts/feeds install -a
 
 COPY --chown=debuser openwrt_config_linksys_e1200 .config
 
-RUN make -j 6 defconfig download clean world
+RUN make -j 10 defconfig download clean world
 
 CMD ["/bin/bash"]
